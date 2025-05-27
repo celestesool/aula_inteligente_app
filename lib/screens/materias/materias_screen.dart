@@ -2,27 +2,37 @@
 
 import 'package:flutter/material.dart';
 import 'materia_card.dart';
+import 'materia_detalle_screen.dart';
 
 class MateriasScreen extends StatelessWidget {
-  // Mock data de materias
   final List<Map<String, dynamic>> materias = [
     {
       "nombre": "Matemáticas",
       "docente": "Prof. García",
-      "progreso": 0.8,
-      "color": Colors.blue
+      "descripcion": "Álgebra, geometría y más.",
+      "grado": "3ro Secundaria",
+      "tareas": [
+        {"titulo": "Problemas de álgebra", "fecha": "2025-05-20"},
+        {"titulo": "Proyecto de geometría", "fecha": "2025-06-01"},
+      ],
     },
     {
       "nombre": "Lenguaje",
       "docente": "Prof. Rojas",
-      "progreso": 0.5,
-      "color": Colors.lightBlue
+      "descripcion": "Gramática y comprensión lectora.",
+      "grado": "3ro Secundaria",
+      "tareas": [
+        {"titulo": "Ensayo de lectura", "fecha": "2025-05-25"},
+      ],
     },
     {
       "nombre": "Ciencias",
       "docente": "Prof. Pérez",
-      "progreso": 0.9,
-      "color": Colors.indigo
+      "descripcion": "Física, química y biología.",
+      "grado": "3ro Secundaria",
+      "tareas": [
+        {"titulo": "Informe de laboratorio", "fecha": "2025-05-28"},
+      ],
     },
   ];
 
@@ -34,16 +44,29 @@ class MateriasScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: materias.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
-        itemBuilder: (context, i) => MateriaCard(
-          nombre: materias[i]["nombre"],
-          docente: materias[i]["docente"],
-          progreso: materias[i]["progreso"],
-          color: materias[i]["color"],
-        ),
-      ),
+          padding: const EdgeInsets.all(16),
+          itemCount: materias.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 10),
+          itemBuilder: (context, i) {
+            final m = materias[i];
+            return MateriaCard(
+              nombre: m["nombre"],
+              docente: m["docente"] ?? "",
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MateriaDetalleScreen(
+                      nombre: m["nombre"],
+                      descripcion: m["descripcion"] ?? "",
+                      grado: m["grado"] ?? "",
+                      tareas: m["tareas"] ?? [],
+                    ),
+                  ),
+                );
+              },
+            );
+          }),
     );
   }
 }

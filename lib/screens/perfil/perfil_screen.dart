@@ -1,17 +1,14 @@
-// ignore_for_file: use_key_in_widget_constructors
+// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors, unused_import, unnecessary_to_list_in_spreads
 import 'package:flutter/material.dart';
-import 'editar_foto.dart';
 
 class PerfilScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Mock de datos alumno
-    final alumno = {
-      "nombre": "Celeste Torrico",
-      "correo": "celeste.torrico@aula.edu",
-      "carrera": "Ingeniería Informática",
+    // Mock de datos alumno con tipos explícitos
+    final Map<String, dynamic> alumno = {
+      "nombre_completo": "Celeste Torrico",
+      "email": "celeste.torrico@aula.edu",
       "materias": ["Matemáticas", "Lenguaje", "Ciencias"],
-      "foto": "https://randomuser.me/api/portraits/women/68.jpg"
     };
 
     return Scaffold(
@@ -31,44 +28,49 @@ class PerfilScreen extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         children: [
           Center(
-            child: Stack(
-              children: [
-                CircleAvatar(
-                  radius: 48,
-                  backgroundImage: NetworkImage(alumno["foto"] as String),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: EditarFotoButton(),
-                ),
-              ],
+            child: CircleAvatar(
+              radius: 48,
+              backgroundColor: Colors.blue[700],
+              child: const Icon(
+                Icons.person,
+                size: 48,
+                color: Colors.white,
+              ),
             ),
           ),
           const SizedBox(height: 18),
           Center(
             child: Text(
-              alumno["nombre"] as String,
+              alumno["nombre_completo"]
+                  as String, // Conversión explícita a String
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
           ),
           const SizedBox(height: 10),
-          Center(child: Text(alumno["correo"] as String)),
+          Center(
+              child: Text(alumno["email"] as String)), // Conversión explícita
           const Divider(height: 35),
-          const Text("Materias inscritas:",
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text(
+            "Materias inscritas:",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
-          ...(alumno["materias"] as List<String>).map((m) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
-                child: Row(
-                  children: [
-                    const Icon(Icons.check_circle_outline,
-                        size: 18, color: Colors.blue),
-                    const SizedBox(width: 8),
-                    Text(m),
-                  ],
-                ),
-              )),
+          ...(alumno["materias"] as List<String>)
+              .map((m) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.check_circle_outline,
+                          size: 18,
+                          color: Colors.blue,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(m),
+                      ],
+                    ),
+                  ))
+              .toList(), 
         ],
       ),
     );
