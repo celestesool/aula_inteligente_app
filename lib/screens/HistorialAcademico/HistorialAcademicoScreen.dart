@@ -1,64 +1,164 @@
-// ignore_for_file: file_names, use_key_in_widget_constructors
+// screens/HistorialAcademico/HistorialAcademicoScreen.dart
+// ignore_for_file: file_names, unnecessary_string_interpolations, unnecessary_to_list_in_spreads
 
 import 'package:flutter/material.dart';
-class HistorialAcademicoScreen extends StatelessWidget {
-  // Aquí deberías traer estos datos desde el backend con el ID del alumno autenticado
-  final List<Map<String, dynamic>> notas = [
-    {"materia": "Matemáticas", "nota": 86, "observacion": "Buen desempeño"},
-    {"materia": "Lenguaje", "nota": 91, "observacion": null},
-    {"materia": "Ciencias", "nota": 74, "observacion": "Debe participar más"},
-  ];
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../services/historial_service.dart';
 
-  final List<Map<String, dynamic>> asistencias = [
-    {"materia": "Matemáticas", "fecha": "2025-05-01", "presente": true},
-    {"materia": "Matemáticas", "fecha": "2025-05-02", "presente": false},
-    {"materia": "Lenguaje", "fecha": "2025-05-01", "presente": true},
-  ];
+class HistorialAcademicoScreen extends StatefulWidget {
+  const HistorialAcademicoScreen({super.key});
 
-  final List<Map<String, dynamic>> participaciones = [
-    {"materia": "Ciencias", "fecha": "2025-05-01", "puntaje": 1.0},
-    {"materia": "Ciencias", "fecha": "2025-05-02", "puntaje": 0.0},
-    {"materia": "Lenguaje", "fecha": "2025-05-01", "puntaje": 0.5},
-  ];
+  @override
+  State<HistorialAcademicoScreen> createState() =>
+      _HistorialAcademicoScreenState();
+}
+
+class _HistorialAcademicoScreenState extends State<HistorialAcademicoScreen> {
+  Map<String, dynamic> notas = {};
+  Map<String, dynamic> asistencias = {};
+  Map<String, dynamic> participacion = {};
+  bool cargando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarDatos();
+  }
+
+  Future<void> _cargarDatos() async {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final alumnoId = auth.usuario!.alumnoId!;
+    final token = auth.token!;
+
+    notas = await HistorialService.getNotas(alumnoId, token);
+    asistencias = await HistorialService.getAsistencias(alumnoId, token);
+    participacion = await HistorialService.getParticipacion(alumnoId, token);
+
+    setState(() {
+      cargando = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (cargando) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    final anios = (notas['notas'] ?? {}).keys.toList();
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Historial Académico'),
-      ),
+      appBar: AppBar(title: const Text('Historial Académico')),
       body: ListView(
         padding: const EdgeInsets.all(16),
-        children: [
-          const Text("Notas finales",
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          ...notas.map((n) => ListTile(
-                title: Text("${n['materia']}: ${n['nota']}"),
-                subtitle:
-                    n['observacion'] != null ? Text(n['observacion']) : null,
-                leading: const Icon(Icons.grade, color: Colors.blue),
-              )),
-          const Divider(height: 32),
-          const Text("Asistencias",
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          ...asistencias.map((a) => ListTile(
-                title: Text("${a['materia']} (${a['fecha']})"),
-                leading: Icon(
-                  a['presente'] ? Icons.check_circle : Icons.cancel,
-                  color: a['presente'] ? Colors.green : Colors.red,
+        children: anios.map<Widget>((anio) {
+          final gradosRaw = notas['notas'][anio]['grados'] ?? {};
+          final grados = Map<String, dynamic>.from(gradosRaw);
+          final grado = grados.keys.isNotEmpty ? grados.keys.first : '';
+          final titulo = "$anio - $grado";
+          final periodosRaw =
+              grado.isNotEmpty ? grados[grado]['periodos'] ?? {} : {};
+          final periodos = Map<String, dynamic>.from(periodosRaw);
+
+          return ExpansionTile(
+            title: Text(titulo,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+            children: periodos.keys.map<Widget>((periodo) {
+              final materiasNotasRaw = periodos[periodo] ?? {};
+              final materiasNotas = Map<String, dynamic>.from(materiasNotasRaw);
+
+              final asistPorPeriodoRaw = ((asistencias['asistencias'] ??
+                      {})[anio]?['grados']?[grado]?['periodos']?[periodo] ??
+                  {});
+              final asistPorPeriodo =
+                  Map<String, dynamic>.from(asistPorPeriodoRaw);
+
+              final partPorPeriodoRaw = ((participacion['participaciones'] ??
+                      {})[anio]?['grados']?[grado]?['periodos']?[periodo] ??
+                  {});
+              final partPorPeriodo =
+                  Map<String, dynamic>.from(partPorPeriodoRaw);
+
+              return Card(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("$periodo",
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
+                      const SizedBox(height: 8),
+                      if (materiasNotas.isNotEmpty) ...[
+                        const Text("Notas:",
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        ...materiasNotas.entries.map((e) {
+                          final nombreMateria = e.key;
+                          final valueList = e.value as List? ?? [];
+                          final nota = valueList.isNotEmpty
+                              ? valueList.first['valor']
+                              : null;
+                          final obs = valueList.isNotEmpty
+                              ? valueList.first['observaciones']
+                              : null;
+                          return ListTile(
+                            leading:
+                                const Icon(Icons.grade, color: Colors.blue),
+                            title: Text("$nombreMateria: ${nota ?? '-'}"),
+                            subtitle: obs != null ? Text(obs) : null,
+                          );
+                        }).toList(),
+                      ],
+                      if (asistPorPeriodo.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        const Text("Asistencias:",
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        ...asistPorPeriodo.entries.map((e) {
+                          final materia = e.key;
+                          final asistList = e.value as List? ?? [];
+                          return Column(
+                            children: asistList.map<Widget>((a) {
+                              final valor = a['valor'];
+                              return ListTile(
+                                leading: const Icon(Icons.check_circle,
+                                    color: Colors.blue),
+                                title: Text("$materia"),
+                                subtitle: Text(
+                                    "Asistencia: ${valor?.toStringAsFixed(1) ?? '-'}"),
+                              );
+                            }).toList(),
+                          );
+                        }).toList(),
+                      ],
+                      if (partPorPeriodo.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        const Text("Participación:",
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        ...partPorPeriodo.entries.map((e) {
+                          final materia = e.key;
+                          final partList = e.value as List? ?? [];
+                          return Column(
+                            children: partList.map<Widget>((p) {
+                              final valor = p['valor'];
+                              return ListTile(
+                                leading: const Icon(Icons.record_voice_over,
+                                    color: Colors.indigo),
+                                title: Text("$materia"),
+                                subtitle: Text("Puntaje: ${valor ?? '-'}"),
+                              );
+                            }).toList(),
+                          );
+                        }).toList(),
+                      ],
+                    ],
+                  ),
                 ),
-                subtitle: Text(a['presente'] ? "Presente" : "Ausente"),
-              )),
-          const Divider(height: 32),
-          const Text("Participaciones",
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          ...participaciones.map((p) => ListTile(
-                title: Text("${p['materia']} (${p['fecha']})"),
-                subtitle: Text("Puntaje: ${p['puntaje']}"),
-                leading:
-                    const Icon(Icons.record_voice_over, color: Colors.indigo),
-              )),
-        ],
+              );
+            }).toList(),
+          );
+        }).toList(),
       ),
     );
   }

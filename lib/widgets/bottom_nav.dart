@@ -34,7 +34,7 @@ class BottomNavBar extends StatelessWidget {
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.assignment),
-          label: 'Tareas',
+          label: 'Control',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person),
