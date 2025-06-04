@@ -10,6 +10,7 @@ import 'screens/login/login_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
 import 'screens/materias/materias_screen.dart';
 import 'screens/perfil/perfil_screen.dart';
+import 'screens/notas_predicciones/notas_predicciones_screen.dart';
 import 'widgets/bottom_nav.dart';
 import 'utils/theme.dart';
 
@@ -40,7 +41,7 @@ class _AulaInteligenteAppState extends State<AulaInteligenteApp> {
     // Pantallas para el BottomNavigationBar
     final List<Widget> _screens = [
       DashboardScreen(),
-      
+       NotasPrediccionesScreen(),
       MateriasScreen(),
       AsistenciaParticipacionScreen(),
       PerfilScreen(),

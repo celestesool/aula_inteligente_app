@@ -1,5 +1,5 @@
 class ApiRoutes {
-  static const String baseUrl = 'http://192.168.145.65:5000';
+  static const String baseUrl = 'http://192.168.145.133:5000';
 
   // --- AUTH ---
   static const String login = '$baseUrl/login';
@@ -35,4 +35,11 @@ class ApiRoutes {
   static String gradosPorGestion = '$baseUrl/api/grados/agrupados';
   static String materiasPorGrado(int gestionId, int gradoId) =>
       '$baseUrl/api/grados/$gestionId/$gradoId/materias';
+
+  static String notasTrimestrePorAlumno(int alumnoId) =>
+      '$baseUrl/api/alumnos/notas?alumno_id=$alumnoId';
+
+  static String prediccionesPorAlumno(int alumnoId) =>
+      '$baseUrl/api/predicciones/alumno/$alumnoId';
+
 }

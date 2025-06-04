@@ -29,6 +29,10 @@ class BottomNavBar extends StatelessWidget {
           label: 'Inicio',
         ),
         BottomNavigationBarItem(
+          icon: Icon(Icons.analytics), // El nuevo ícono para Notas/IA
+          label: 'Notas',
+        ),
+        BottomNavigationBarItem(
           icon: Icon(Icons.menu_book),
           label: 'Materias',
         ),
