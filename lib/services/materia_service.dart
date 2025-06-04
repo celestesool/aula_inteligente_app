@@ -13,8 +13,6 @@ class MateriaService {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final List<Materia> materiasEnCurso = [];
-
-      // Si la respuesta tiene 'materias_por_gestion' (como en tu backend)
       if (data['materias_por_gestion'] != null) {
         for (var gestion in data['materias_por_gestion']) {
           if (gestion['estado'] == 'en curso') {

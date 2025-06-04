@@ -1,17 +1,14 @@
-// ignore_for_file: use_key_in_widget_constructors
+// ignore_for_file: use_key_in_widget_constructors, use_super_parameters
 
 import 'package:flutter/material.dart';
 
 class GraficoDesempeno extends StatelessWidget {
+  final List<Map<String, dynamic>> data;
+
+  const GraficoDesempeno({Key? key, required this.data}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    // Mock gráfico emm barras simples usando contenedores
-    final List<Map<String, dynamic>> data = [
-      {"materia": "Matemáticas", "valor": 90},
-      {"materia": "Lenguaje", "valor": 75},
-      {"materia": "Ciencias", "valor": 82},
-    ];
-
     return Card(
       elevation: 1,
       child: Padding(
@@ -30,7 +27,7 @@ class GraficoDesempeno extends StatelessWidget {
                       ),
                       Expanded(
                         child: LinearProgressIndicator(
-                          value: (item["valor"] as int) / 100,
+                          value: (item["valor"] as num) / 100,
                           color: Colors.blue[700],
                           backgroundColor: Colors.blue[100],
                           minHeight: 12,

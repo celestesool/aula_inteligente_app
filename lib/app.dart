@@ -40,9 +40,11 @@ class _AulaInteligenteAppState extends State<AulaInteligenteApp> {
     // Pantallas para el BottomNavigationBar
     final List<Widget> _screens = [
       DashboardScreen(),
+      
       MateriasScreen(),
       AsistenciaParticipacionScreen(),
       PerfilScreen(),
+
     ];
 
     return MaterialApp(

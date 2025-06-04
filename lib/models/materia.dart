@@ -16,6 +16,10 @@ class Materia {
         nombre: json['nombre'],
         descripcion: json['descripcion'] ?? '',
       );
+
+  get docente => null;
+
+  get periodo => null;
 }
 
 class MateriasPorGrado {
